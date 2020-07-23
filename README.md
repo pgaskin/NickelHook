@@ -4,7 +4,24 @@ A library for creating mods for Kobo's eReader software, Nickel.
 
 NickelHook started out as part of [NickelMenu](https://github.com/pgaskin/NickelMenu), but was later extracted into this library for easier and safer re-use in other mods.
 
-**Features:**
+Unless you are interested in developing your own mod, you probably are looking for one of the existing ones:
+
+| Mod  | Description | Status |
+| :--- |     ---     |   ---: |
+| [pgaskin/NickelMenu](https://github.com/pgaskin/NickelMenu) | Adds custom menu items to the main and reader menus. | Stable |
+| [pgaskin/NickelSeries](https://github.com/pgaskin/kobo-mods/tree/master/NickelSeries) | Adds support for parsing series (and subtitle) metadata from sideloaded books. | Stable |
+| [pgaskin/kobo-dotfile-hack](https://github.com/pgaskin/kobo-mods/tree/master/kobo-dotfile-hack-ng) | Prevents Nickel from attempting to scan and import books from dotfiles/folders on firmware 4.17.13651+. | Stable |
+| [shermp/NickelDBus](https://github.com/shermp/NickelDBus) | Allows Nickel to be observed and controlled over DBus. | WIP |
+
+## Installation
+
+1. Copy this folder to your project, or include it as a git submodule.
+2. Run `make -f ./relative/path/to/NickelHook.mk NAME=MyModName`.
+3. Build using `make`. To generate a KoboRoot.tgz, run `make koboroot` after building. To clean, run `make clean`.
+4. Whenever you change header files, run `make clean`. If you add/remove source files, run `make gitignore`.
+5. To generate a compile_commands.json, use `make clangd CROSS_COMPILE= CC=clang-10 CXX=clang++-10 CFLAGS= CXXFLAGS=`.
+
+## Features
 - Generates a Qt plugin designed for use with Nickel.
 - Project generator.
 - C library:
@@ -28,14 +45,6 @@ NickelHook started out as part of [NickelMenu](https://github.com/pgaskin/Nickel
   - gitignore generation.
   - Git versioning (but can be overridden).
   - Supports custom targets.
-
-## Installation
-
-1. Copy this folder to your project, or include it as a git submodule.
-2. Run `make -f ./relative/path/to/NickelHook.mk NAME=MyModName`.
-3. Build using `make`. To generate a KoboRoot.tgz, run `make koboroot` after building. To clean, run `make clean`.
-4. Whenever you change header files, run `make clean`. If you add/remove source files, run `make gitignore`.
-5. To generate a compile_commands.json, use `make clangd CROSS_COMPILE= CC=clang-10 CXX=clang++-10 CFLAGS= CXXFLAGS=`.
 
 ## Usage
 
