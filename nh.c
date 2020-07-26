@@ -64,6 +64,56 @@ __attribute__((visibility("hidden"))) void nh_failsafe_destroy(nh_failsafe_t *fs
 // used afterwards.
 __attribute__((visibility("hidden"))) void nh_failsafe_uninstall(nh_failsafe_t *fs);
 
+// The following blacklists help prevent any whoopsies when deleting files during uninstall
+
+// These files are important for recovery purposes.
+static const char *delete_file_blacklist[] = {
+    "/bin/sh",
+    "/etc/init.d/rcS",
+    "/usr/local/Kobo/pickel",
+};
+
+// Let's not allow deleting any files in /bin, /sbin, or u-boot stuff.
+static const char *delete_prefix_blacklist[] = {
+    "/bin",
+    "/sbin",
+    "/etc/u-boot",
+};
+
+// This is for the schmuck who forgot to terminate his array of paths
+// and accidentially deleted '/bin/sh' due to an out-of-bounds read.
+static void nh_file_delete(const char *path) {
+    if (path) {
+        for (unsigned int i = 0; i < (sizeof(delete_file_blacklist) / sizeof(*delete_file_blacklist)); i++) {
+            if (!strcmp(delete_file_blacklist[i], path)) {
+                nh_log("(NickelHook) not deleting blacklisted file %s", path);
+                return;
+            }
+        }
+        for (unsigned int i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(*delete_prefix_blacklist)); i++) {
+            if (!strncmp(delete_prefix_blacklist[i], path, strlen(delete_prefix_blacklist[i]))) {
+                nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", path, delete_prefix_blacklist[i]);
+                return;
+            }
+        }
+        // remove(), to support both files and directories
+        if (remove(path) == -1) {
+            nh_log("(NickelHook) failed to delete %s, with error: %s", path, strerror(errno));
+        }
+    }
+}
+
+// Uninstall extra files and directories from a provided NULL terminated list of paths
+static void nh_uninstall_extra_files(const char **paths) {
+    if (paths) {
+        nh_log("(NickelHook) uninstalling additional files:");
+        for (int i = 0; paths[i] != NULL; i++) {
+            nh_log("(NickelHook) deleting %s", paths[i]);
+            nh_file_delete(paths[i]);
+        }
+    }
+}
+
 // --- init
 
 void nh_init() {
@@ -109,6 +159,7 @@ void nh_init() {
             nh_log("(NickelHook) ... info: flag found, uninstalling");
             unlink(nh->info->uninstall_flag);
             nh_failsafe_uninstall(fs);
+            nh_uninstall_extra_files(nh->info->uninstall_files);
             goto nh_init_return_no_fs;
         }
     }
@@ -118,6 +169,7 @@ void nh_init() {
         if (access(nh->info->uninstall_xflag, F_OK) && errno == ENOENT) {
             nh_log("(NickelHook) ... info: flag removed, uninstalling");
             nh_failsafe_uninstall(fs);
+            nh_uninstall_extra_files(nh->info->uninstall_files);
             goto nh_init_return_no_fs;
         }
     }

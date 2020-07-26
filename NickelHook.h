@@ -36,6 +36,7 @@ struct nh_info {
     const char *desc;            // default: none - human-readable description
     const char *uninstall_flag;  // default: none - path to flag which triggers an uninstall and deletes itself if it exists
     const char *uninstall_xflag; // default: none - path to flag which triggers an uninstall if it is deleted
+    const char **uninstall_files;// default: none - null terminated array of file/directory paths to delete during uninstall
     int        failsafe_delay;   // default: 0    - delay in seconds before disarming failsafe
 
     // TODO: maybe a mechanism to only load the latest version?
