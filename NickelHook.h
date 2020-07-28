@@ -66,7 +66,7 @@ struct nh_dlsym {
 
 // nh_delete_path deletes the provided path if it exists. It performs some checks
 // to detect and avoid deleting critical system files
-__attribute__((visibility("default"))) void nh_delete_path(const char *path);
+__attribute__((visibility("default"))) void nh_delete_path(const char *path, bool is_dir);
 
 // nh_log logs a message with a prefix based on the mod name, and should be used
 // for all logging. Messages larger than 256 bytes will be silently  truncated.
