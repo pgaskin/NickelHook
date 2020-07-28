@@ -87,14 +87,11 @@ void nh_delete_path(const char *path, bool is_dir) {
         nh_log("(NickelHook) no path supplied");
         return;
     }
-    char *canonical_path;
-    // lets not play the guessing game with PATH_MAX
-    // note, this is from GNU, so _GNU_SOURCE is required
-    if ((canonical_path = canonicalize_file_name(path))) {
+    char canonical_path[PATH_MAX] = {0};
+    if (realpath(path, canonical_path)) {
         for (unsigned int i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(delete_prefix_blacklist[0])); i++) {
             if (!strncmp(delete_prefix_blacklist[i], canonical_path, strlen(delete_prefix_blacklist[i]))) {
                 nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_prefix_blacklist[i]);
-                free(canonical_path);
                 return;
             }
         }
@@ -103,7 +100,6 @@ void nh_delete_path(const char *path, bool is_dir) {
         if (res == -1) {
             nh_log("(NickelHook) failed to delete %s, with error: %m", canonical_path);
         }
-        free(canonical_path);
     } else {
         nh_log("(NickelHook) unable to get canonical path for %s : %m", path);
     }
