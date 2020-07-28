@@ -64,6 +64,10 @@ __attribute__((visibility("hidden"))) void nh_failsafe_destroy(nh_failsafe_t *fs
 // used afterwards.
 __attribute__((visibility("hidden"))) void nh_failsafe_uninstall(nh_failsafe_t *fs);
 
+// nh_delete_path deletes the provided path if it exists. It performs some checks
+// to detect and avoid deleting critical system files
+__attribute__((visibility("hidden"))) void nh_delete_path(const char *path, bool is_dir);
+
 // The following blacklist helps prevent any whoopsies when deleting files or directories during uninstall
 
 // Let's not allow deleting any files in /bin, /sbin, /etc/init.d or u-boot stuff.
@@ -83,7 +87,7 @@ void nh_delete_path(const char *path, bool is_dir) {
         nh_log("(NickelHook) no path supplied");
         return;
     }
-    const char *canonical_path;
+    char *canonical_path;
     // lets not play the guessing game with PATH_MAX
     // note, this is from GNU, so _GNU_SOURCE is required
     if ((canonical_path = canonicalize_file_name(path))) {
@@ -103,6 +107,14 @@ void nh_delete_path(const char *path, bool is_dir) {
     } else {
         nh_log("(NickelHook) unable to get canonical path for %s : %m", path);
     }
+}
+
+void nh_delete_file(const char *path) {
+    nh_delete_path(path, false);
+}
+
+void nh_delete_dir(const char *path) {
+    nh_delete_path(path, true);
 }
 
 // --- init
