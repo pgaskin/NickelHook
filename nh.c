@@ -67,9 +67,10 @@ __attribute__((visibility("hidden"))) void nh_failsafe_uninstall(nh_failsafe_t *
 // The following blacklist helps prevent any whoopsies when deleting files or directories during uninstall
 
 // Let's not allow deleting any files in /bin, /sbin, /etc/init.d or u-boot stuff.
-static const char *delete_blacklist[] = {
+static const char *delete_prefix_blacklist[] = {
     "/bin",
     "/sbin",
+    // note, '/etc/u-boot/*/u-boot.recovery' is a critical file for recovery
     "/etc/u-boot",
     "/etc/init.d",
     "/usr/local/Kobo/pickel",
@@ -86,9 +87,9 @@ void nh_delete_path(const char *path, bool is_dir) {
     // lets not play the guessing game with PATH_MAX
     // note, this is from GNU, so _GNU_SOURCE is required
     if ((canonical_path = canonicalize_file_name(path))) {
-        for (unsigned int i = 0; i < (sizeof(delete_blacklist) / sizeof(*delete_blacklist)); i++) {
-            if (!strncmp(delete_blacklist[i], canonical_path, strlen(delete_blacklist[i]))) {
-                nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_blacklist[i]);
+        for (unsigned int i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(delete_prefix_blacklist[0])); i++) {
+            if (!strncmp(delete_prefix_blacklist[i], canonical_path, strlen(delete_prefix_blacklist[i]))) {
+                nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_prefix_blacklist[i]);
                 free(canonical_path);
                 return;
             }
