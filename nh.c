@@ -81,8 +81,8 @@ static const char *delete_prefix_blacklist[] = {
 };
 
 // This is for the schmuck who forgot to terminate his array of paths
-// and accidentially deleted '/bin/sh' due to an out-of-bounds read.
-static void nh_file_delete(const char *path) {
+// and accidentally deleted '/bin/sh' due to an out-of-bounds read.
+void nh_delete_path(const char *path) {
     if (path) {
         for (unsigned int i = 0; i < (sizeof(delete_file_blacklist) / sizeof(*delete_file_blacklist)); i++) {
             if (!strcmp(delete_file_blacklist[i], path)) {
@@ -99,17 +99,6 @@ static void nh_file_delete(const char *path) {
         // remove(), to support both files and directories
         if (remove(path) == -1) {
             nh_log("(NickelHook) failed to delete %s, with error: %s", path, strerror(errno));
-        }
-    }
-}
-
-// Uninstall extra files and directories from a provided NULL terminated list of paths
-static void nh_uninstall_extra_files(const char **paths) {
-    if (paths) {
-        nh_log("(NickelHook) uninstalling additional files:");
-        for (int i = 0; paths[i] != NULL; i++) {
-            nh_log("(NickelHook) deleting %s", paths[i]);
-            nh_file_delete(paths[i]);
         }
     }
 }
@@ -159,7 +148,9 @@ void nh_init() {
             nh_log("(NickelHook) ... info: flag found, uninstalling");
             unlink(nh->info->uninstall_flag);
             nh_failsafe_uninstall(fs);
-            nh_uninstall_extra_files(nh->info->uninstall_files);
+            if (nh->uninstall) {
+                nh->uninstall();
+            }
             goto nh_init_return_no_fs;
         }
     }
@@ -169,7 +160,9 @@ void nh_init() {
         if (access(nh->info->uninstall_xflag, F_OK) && errno == ENOENT) {
             nh_log("(NickelHook) ... info: flag removed, uninstalling");
             nh_failsafe_uninstall(fs);
-            nh_uninstall_extra_files(nh->info->uninstall_files);
+            if (nh->uninstall) {
+                nh->uninstall();
+            }
             goto nh_init_return_no_fs;
         }
     }

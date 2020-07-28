@@ -26,6 +26,7 @@ struct nh {
     struct nh_info  *info;
     struct nh_hook  *hook;  // pointer to the first element, NULL terminated
     struct nh_dlsym *dlsym; // pointer to the first element, NULL terminated
+    void (*uninstall)(); // optional, allow extra cleanup on uninstall
 };
 
 // nh_info contains information about the mod.
@@ -36,7 +37,6 @@ struct nh_info {
     const char *desc;            // default: none - human-readable description
     const char *uninstall_flag;  // default: none - path to flag which triggers an uninstall and deletes itself if it exists
     const char *uninstall_xflag; // default: none - path to flag which triggers an uninstall if it is deleted
-    const char **uninstall_files;// default: none - null terminated array of file/directory paths to delete during uninstall
     int        failsafe_delay;   // default: 0    - delay in seconds before disarming failsafe
 
     // TODO: maybe a mechanism to only load the latest version?
@@ -63,6 +63,10 @@ struct nh_dlsym {
     const char *desc;    // default: none  - human-readable description
     bool       optional; // default: false - prevents a failure to resolve the sym from being treated as a fatal error, and sets it to NULL instead
 };
+
+// nh_delete_path deletes the provided path if it exists. It performs some checks
+// to detect and avoid deleting critical system files
+__attribute__((visibility("default"))) void nh_delete_path(const char *path);
 
 // nh_log logs a message with a prefix based on the mod name, and should be used
 // for all logging. Messages larger than 256 bytes will be silently  truncated.
