@@ -26,7 +26,8 @@ struct nh {
     struct nh_info  *info;
     struct nh_hook  *hook;  // pointer to the first element, NULL terminated
     struct nh_dlsym *dlsym; // pointer to the first element, NULL terminated
-    void (*uninstall)(); // optional, allow extra cleanup on uninstall
+
+    bool (*uninstall)(); // optional, allow extra cleanup on uninstall
 };
 
 // nh_info contains information about the mod.
