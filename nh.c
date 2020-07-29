@@ -66,7 +66,7 @@ __attribute__((visibility("hidden"))) void nh_failsafe_uninstall(nh_failsafe_t *
 
 // nh_delete_path deletes the provided path if it exists. It performs some checks
 // to detect and avoid deleting critical system files
-__attribute__((visibility("hidden"))) void nh_delete_path(const char *path, bool is_dir);
+__attribute__((visibility("hidden"))) bool nh_delete_path(const char *path, bool is_dir);
 
 // --- init
 
@@ -488,33 +488,35 @@ static const char *delete_prefix_blacklist[] = {
 
 // This is for the schmuck who forgot to terminate his array of paths
 // and accidentally deleted '/bin/sh' due to an out-of-bounds read.
-void nh_delete_path(const char *path, bool is_dir) {
+bool nh_delete_path(const char *path, bool is_dir) {
     if (!path) {
         nh_log("(NickelHook) no path supplied");
-        return;
+        return false;
     }
     char canonical_path[PATH_MAX] = {0};
-    if (realpath(path, canonical_path)) {
-        for (unsigned int i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(delete_prefix_blacklist[0])); i++) {
-            if (!strncmp(delete_prefix_blacklist[i], canonical_path, strlen(delete_prefix_blacklist[i]))) {
-                nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_prefix_blacklist[i]);
-                return;
-            }
-        }
-        nh_log("(NickelHook) ... deleting %s %s", (is_dir ? "directory" : "file") ,canonical_path);
-        int res = is_dir ? rmdir(canonical_path) : unlink(canonical_path);
-        if (res == -1) {
-            nh_log("(NickelHook) failed to delete %s, with error: %m", canonical_path);
-        }
-    } else {
+    if (!realpath(path, canonical_path)) {
         nh_log("(NickelHook) unable to get canonical path for %s : %m", path);
+        return false;
     }
+    for (unsigned int i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(delete_prefix_blacklist[0])); i++) {
+        if (!strncmp(delete_prefix_blacklist[i], canonical_path, strlen(delete_prefix_blacklist[i]))) {
+            nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_prefix_blacklist[i]);
+            return false;
+        }
+    }
+    nh_log("(NickelHook) ... deleting %s %s", (is_dir ? "directory" : "file") ,canonical_path);
+    int res = is_dir ? rmdir(canonical_path) : unlink(canonical_path);
+    if (res == -1) {
+        nh_log("(NickelHook) failed to delete %s, with error: %m", canonical_path);
+        return false;
+    }
+    return true;
 }
 
-void nh_delete_file(const char *path) {
-    nh_delete_path(path, false);
+bool nh_delete_file(const char *path) {
+    return nh_delete_path(path, false);
 }
 
-void nh_delete_dir(const char *path) {
-    nh_delete_path(path, true);
+bool nh_delete_dir(const char *path) {
+    return nh_delete_path(path, true);
 }
