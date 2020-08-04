@@ -474,7 +474,7 @@ void nh_failsafe_uninstall(nh_failsafe_t *fs) {
 
 // --- File/directory deletion
 
-// The following blacklist helps prevent any whoopsies when deleting files or directories during uninstall
+// The following blacklist helps prevent any whoopsies when deleting files or directories during uninstall.
 
 // Let's not allow deleting any files in /bin, /sbin, /etc/init.d or u-boot stuff.
 static const char *delete_prefix_blacklist[] = {
@@ -498,14 +498,16 @@ bool nh_delete_path(const char *path, bool is_dir) {
         nh_log("(NickelHook) unable to get canonical path for %s : %m", path);
         return false;
     }
-    for (unsigned int i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(delete_prefix_blacklist[0])); i++) {
+    for (size_t i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(*delete_prefix_blacklist)); i++) {
         if (!strncmp(delete_prefix_blacklist[i], canonical_path, strlen(delete_prefix_blacklist[i]))) {
             nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_prefix_blacklist[i]);
             return false;
         }
     }
-    nh_log("(NickelHook) ... deleting %s %s", (is_dir ? "directory" : "file") ,canonical_path);
-    int res = is_dir ? rmdir(canonical_path) : unlink(canonical_path);
+    nh_log("(NickelHook) ... deleting %s %s", (is_dir ? "directory" : "file"), canonical_path);
+    int res = is_dir 
+        ? rmdir(canonical_path) 
+        : unlink(canonical_path);
     if (res == -1) {
         nh_log("(NickelHook) failed to delete %s, with error: %m", canonical_path);
         return false;
