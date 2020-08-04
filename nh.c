@@ -493,23 +493,23 @@ bool nh_delete_path(const char *path, bool is_dir) {
         nh_log("(NickelHook) no path supplied");
         return false;
     }
-    char canonical_path[PATH_MAX] = {0};
-    if (!realpath(path, canonical_path)) {
+    char fn[PATH_MAX] = {0};
+    if (!realpath(path, fn)) {
         nh_log("(NickelHook) unable to get canonical path for %s : %m", path);
         return false;
     }
     for (size_t i = 0; i < (sizeof(delete_prefix_blacklist) / sizeof(*delete_prefix_blacklist)); i++) {
-        if (!strncmp(delete_prefix_blacklist[i], canonical_path, strlen(delete_prefix_blacklist[i]))) {
-            nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", canonical_path, delete_prefix_blacklist[i]);
+        if (!strncmp(delete_prefix_blacklist[i], fn, strlen(delete_prefix_blacklist[i]))) {
+            nh_log("(NickelHook) not deleting %s with blacklisted prefix %s", fn, delete_prefix_blacklist[i]);
             return false;
         }
     }
-    nh_log("(NickelHook) ... deleting %s %s", (is_dir ? "directory" : "file"), canonical_path);
+    nh_log("(NickelHook) ... deleting %s %s", (is_dir ? "directory" : "file"), fn);
     int res = is_dir 
-        ? rmdir(canonical_path) 
-        : unlink(canonical_path);
+        ? rmdir(fn) 
+        : unlink(fn);
     if (res == -1) {
-        nh_log("(NickelHook) failed to delete %s, with error: %m", canonical_path);
+        nh_log("(NickelHook) failed to delete %s, with error: %m", fn);
         return false;
     }
     return true;
