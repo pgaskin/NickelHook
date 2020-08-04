@@ -64,10 +64,6 @@ __attribute__((visibility("hidden"))) void nh_failsafe_destroy(nh_failsafe_t *fs
 // used afterwards.
 __attribute__((visibility("hidden"))) void nh_failsafe_uninstall(nh_failsafe_t *fs);
 
-// nh_delete_path deletes the provided path if it exists. It performs some checks
-// to detect and avoid deleting critical system files
-__attribute__((visibility("hidden"))) bool nh_delete_path(const char *path, bool is_dir);
-
 // --- init
 
 void nh_init() {
@@ -486,9 +482,12 @@ static const char *delete_prefix_blacklist[] = {
     "/usr/local/Kobo/pickel",
 };
 
+// nh_delete_path deletes the provided path if it exists. It performs some checks
+// to detect and avoid deleting critical system files
+// 
 // This is for the schmuck who forgot to terminate his array of paths
 // and accidentally deleted '/bin/sh' due to an out-of-bounds read.
-bool nh_delete_path(const char *path, bool is_dir) {
+static bool nh_delete_path(const char *path, bool is_dir) {
     if (!path) {
         nh_log("(NickelHook) no path supplied");
         return false;
