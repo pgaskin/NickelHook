@@ -68,6 +68,9 @@ struct nh_dlsym {
 // nh_delete_* deletes the provided path if it exists. It performs some checks
 // to detect and avoid deleting critical system files. The functions return true
 // if the path was removed, or false otherwise.
+// Note, nh_delete_dir will only delete empty directories. Use nh_delete_file and/or
+// nh_delete_dir to delete any files or directories within before attempting to delete
+// a directory.
 __attribute__((visibility("default"))) bool nh_delete_file(const char *path);
 __attribute__((visibility("default"))) bool nh_delete_dir(const char *path);
 
