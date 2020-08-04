@@ -18,6 +18,17 @@ CC            = $(CROSS_COMPILE)gcc
 CXX           = $(CROSS_COMPILE)g++
 PKG_CONFIG    = $(CROSS_COMPILE)pkg-config
 STRIP         = $(CROSS_COMPILE)strip
+AS            = $(CROSS_COMPILE)as
+# NOTE: Point to the GCC wrappers for sane LTO handling.
+#       But don't use LTO, it's terrible on GCC 4.9
+AR            = $(CROSS_COMPILE)gcc-ar
+RANLIB        = $(CROSS_COMPILE)gcc-ranlib
+NM            = $(CROSS_COMPILE)gcc-nm
+LD            = $(CROSS_COMPILE)ld
+READELF       = $(CROSS_COMPILE)readelf
+OBJCOPY       = $(CROSS_COMPILE)objcopy
+OBJDUMP       = $(CROSS_COMPILE)objdump
+STRINGS       = $(CROSS_COMPILE)strings
 
 DESTDIR =
 
