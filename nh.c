@@ -507,7 +507,7 @@ static bool nh_delete_path(const char *path, bool is_dir) {
     int res = is_dir 
         ? rmdir(fn) 
         : unlink(fn);
-    if (res == -1) {
+    if (res == -1 && errno != ENOENT) {
         nh_log("(NickelHook) failed to delete %s, with error: %m", fn);
         return false;
     }
