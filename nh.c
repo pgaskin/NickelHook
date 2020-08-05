@@ -470,9 +470,11 @@ void nh_failsafe_uninstall(nh_failsafe_t *fs) {
 
 // --- File/directory deletion
 
-// The following blacklist helps prevent any whoopsies when deleting files or directories during uninstall.
+// The following blacklist helps prevent any whoopsies when deleting files or
+// directories during uninstall.
 
-// Let's not allow deleting any files in /bin, /sbin, /etc/init.d or u-boot stuff.
+// Let's not allow deleting any files in /bin, /sbin, /etc/init.d or u-boot
+// stuff.
 static const char *delete_prefix_blacklist[] = {
     "/bin",
     "/sbin",
@@ -482,11 +484,11 @@ static const char *delete_prefix_blacklist[] = {
     "/usr/local/Kobo/pickel",
 };
 
-// nh_delete_path deletes the provided path if it exists. It performs some checks
-// to detect and avoid deleting critical system files
-// 
-// This is for the schmuck who forgot to terminate his array of paths
-// and accidentally deleted '/bin/sh' due to an out-of-bounds read.
+// nh_delete_path deletes the provided path if it exists. It performs some
+// checks to detect and avoid deleting critical system files
+//
+// This is for the schmuck who forgot to terminate his array of paths and
+// accidentally deleted '/bin/sh' due to an out-of-bounds read.
 static bool nh_delete_path(const char *path, bool is_dir) {
     if (!path) {
         nh_log("(NickelHook) no path supplied");
