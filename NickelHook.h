@@ -26,6 +26,8 @@ struct nh {
     struct nh_info  *info;
     struct nh_hook  *hook;  // pointer to the first element, NULL terminated
     struct nh_dlsym *dlsym; // pointer to the first element, NULL terminated
+
+    bool (*uninstall)(); // optional, allow extra cleanup on uninstall
 };
 
 // nh_info contains information about the mod.
@@ -62,6 +64,15 @@ struct nh_dlsym {
     const char *desc;    // default: none  - human-readable description
     bool       optional; // default: false - prevents a failure to resolve the sym from being treated as a fatal error, and sets it to NULL instead
 };
+
+// nh_delete_* deletes the provided path if it exists. It performs some checks
+// to detect and avoid deleting critical system files. The functions return true
+// if the path was removed or does not exist, and false on error. nh_delete_dir
+// will only delete empty directories. Use nh_delete_file and/or nh_delete_dir
+// to delete any files or directories within before attempting to delete a
+// directory.
+__attribute__((visibility("default"))) bool nh_delete_file(const char *path);
+__attribute__((visibility("default"))) bool nh_delete_dir(const char *path);
 
 // nh_log logs a message with a prefix based on the mod name, and should be used
 // for all logging. Messages larger than 256 bytes will be silently  truncated.
