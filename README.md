@@ -11,7 +11,9 @@ Unless you are interested in developing your own mod, you probably are looking f
 | [pgaskin/NickelMenu](https://github.com/pgaskin/NickelMenu) | Adds custom menu items to the main and reader menus. | Stable |
 | [pgaskin/NickelSeries](https://github.com/pgaskin/kobo-mods/tree/master/NickelSeries) | Adds support for parsing series (and subtitle) metadata from sideloaded books. | Stable |
 | [pgaskin/kobo-dotfile-hack](https://github.com/pgaskin/kobo-mods/tree/master/kobo-dotfile-hack-ng) | Prevents Nickel from attempting to scan and import books from dotfiles/folders on firmware 4.17.13651+. | Stable |
-| [shermp/NickelDBus](https://github.com/shermp/NickelDBus) | Allows Nickel to be observed and controlled over DBus. | WIP |
+| [shermp/NickelDBus](https://github.com/shermp/NickelDBus) | Allows Nickel to be observed and controlled over DBus. | Stable |
+| [shermp/NickelClock](https://github.com/shermp/NickelClock) | Shows the time while reading. | Stable |
+| [tsowell/kobo-btpt](https://github.com/tsowell/kobo-btpt) | Adds support for turning pages using buttons on connected Bluetooth devices. | Beta |
 
 ## Installation
 
