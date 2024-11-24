@@ -231,9 +231,16 @@ override nh_namel := $(shell echo "$(nh_names)" | tr '[:upper:]' '[:lower:]')
 
 $(if $(nh_namet),,$(error NAME must contain at least one uppercase letter, preferably more to be unique))
 
+ONBOARD_DIR ?= /mnt/onboard
+PLUGIN_DIR	?= /mnt/onboard/.adds
+
+PLUGIN_UNINSTALL_FILE	?= res/$(NAME)_version
+
+SRC_DIR  ?= src
+NM_DIR 	 ?= NickelMenu/$(SRC_DIR)
 LIBRARY  ?= lib$(nh_namel).so
-NHSOURCE ?= src/$(nh_namel).cc
-SOURCES  ?= $(wildcard src/*.c src/*.cc)
+NHSOURCE ?= $(SRC_DIR)/$(nh_namel).cc
+SOURCES  ?= $(wildcard $(NM_DIR)/*.c $(NM_DIR)/*.cc $(SRC_DIR)/*.c $(SRC_DIR)/*.cc)
 
 override nh_dir    := $(dir $(lastword $(MAKEFILE_LIST)))
 override nh_mkdir   = @echo "$@"; mkdir $@
@@ -256,10 +263,26 @@ Makefile:
 	$(call nh_write,override SOURCES  += $(NHSOURCE) $(sort $(filter-out $(NHSOURCE), $(SOURCES))))
 	$(call nh_write,override CFLAGS   += -Wall -Wextra -Werror)
 	$(call nh_write,override CXXFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers)
+	$(call nh_write,override UNINSTALL_FILE += $(PLUGIN_UNINSTALL_FILE))
+	$(call nh_write,override GENERATED      += $(PLUGIN_UNINSTALL_FILE))
+	$(call nh_write,override KOBOROOT       += $(PLUGIN_UNINSTALL_FILE):$(PLUGIN_DIR)/$(NAME))
+	$(call nh_write,override KOBOROOT       += $(LIBRARY):$(PLUGIN_DIR)/$(notdir $(LIBRARY)))
+	$(call nh_write,uninstall-file:)
+	$(call nh_write,	echo "$(VERSION)" > $(PLUGIN_UNINSTALL_FILE))
+	$(call nh_write,)
+	$(call nh_write,all: uninstall-file)
+	$(call nh_write,)
+	$(call nh_write,debug: CFLAGS += -DDEBUG)
+	$(call nh_write,debug: CXXFLAGS += -DDEBUG)
+	$(call nh_write,debug: all)
+
 	$(call nh_write,)
 	$(call nh_write,include $(nh_dir)NickelHook.mk)
 
 src:
+	$(call nh_mkdir)
+
+res:
 	$(call nh_mkdir)
 
 $(NHSOURCE): src
@@ -272,7 +295,7 @@ $(NHSOURCE): src
 	$(call nh_write,static struct nh_info $(nh_names) = {)
 	$(call nh_write,    .name           = "$(NAME)"$(nh_comma))
 	$(call nh_write,    .desc           = ""$(nh_comma))
-	$(call nh_write,    .uninstall_flag = "/mnt/onboard/$(nh_nameu)_uninstall"$(nh_comma))
+	$(call nh_write,    .uninstall_flag = "$(ONBOARD_DIR)/$(nh_nameu)_uninstall"$(nh_comma))
 	$(call nh_write,};)
 	$(call nh_write,)
 	$(call nh_write,static struct nh_hook $(nh_names)Hook[] = {)
