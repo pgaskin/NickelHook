@@ -16,6 +16,7 @@ Unless you are interested in developing your own mod, you probably are looking f
 | [tsowell/kobo-btpt](https://github.com/tsowell/kobo-btpt) | Adds support for turning pages using buttons on connected Bluetooth devices. | Stable |
 | [onatbas/nickelnote](https://github.com/onatbas/nickelnote) | Adds a note to the sleep view. | Stable |
 | [Podginator/KoboOmnivoreConverter](https://github.com/Podginator/KoboOmnivoreConverter) | Replaces Pocket with Omnivore. | Stable |
+| [redphx/nickel-screensaver](https://github.com/redphx/nickel-screensaver) | Transparent screensavers. | Stable |
 
 ## Installation
 
