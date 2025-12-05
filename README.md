@@ -21,10 +21,17 @@ Unless you are interested in developing your own mod, you probably are looking f
 ## Installation
 
 1. Copy this folder to your project, or include it as a git submodule.
-2. Run `make -f ./relative/path/to/NickelHook.mk NAME=MyModName`.
-3. Build using `make`. To generate a KoboRoot.tgz, run `make koboroot` after building. To clean, run `make clean`.
-4. Whenever you change header files, run `make clean`. If you add/remove source files, run `make gitignore`.
-5. To generate a compile_commands.json, use `make clangd CROSS_COMPILE= CC=clang-10 CXX=clang++-10 CFLAGS= CXXFLAGS=`.
+2. Create a file named `nhplugin.json` in your project folder (not NickelHook's) with the following content. Replace `<UNIQUE-NAME>` with a unique value that does not conflict with other mods (See https://github.com/pgaskin/NickelHook/issues/9).
+    ```json
+    {
+      "Keys": ["<UNIQUE-NAME>"]
+    }
+    ```
+    > If you used an older NickelHook version before this requirement, remove any existing `nhplugin.moc` and `nhplugin.moc.o` files first.
+3. Run `make -f ./relative/path/to/NickelHook.mk NAME=MyModName`.
+4. Build using `make`. To generate a KoboRoot.tgz, run `make koboroot` after building. To clean, run `make clean`.
+5. Whenever you change header files, run `make clean`. If you add/remove source files, run `make gitignore`.
+6. To generate a compile_commands.json, use `make clangd CROSS_COMPILE= CC=clang-10 CXX=clang++-10 CFLAGS= CXXFLAGS=`.
 
 ## Features
 - Generates a Qt plugin designed for use with Nickel.
