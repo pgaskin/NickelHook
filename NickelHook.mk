@@ -78,6 +78,20 @@ override MOCS += $(NICKELHOOK)nhplugin.h
 # override KOBOROOT += <source>:<dest>
 override KOBOROOT += $(LIBRARY):/usr/local/Kobo/imageformats/$(notdir $(LIBRARY))
 
+## generate plugin manifest (note: this requires a `make clean` if it changes)
+#    even though the docs aren't clear about this, without a unique value in
+#    Keys, not all plugins may load due to a race condition where qt may try to
+#    unload a non-unique plugin before init gets called
+#    see issue #9, https://github.com/qt/qtbase/blob/d1210281e41008ce2e3510aa5cfb3ebea1c57734/src/corelib/plugin/qfactoryloader.cpp#L158-L200)
+override PLUGINKEY := $(patsubst lib%,%,$(patsubst %.so,%,$(notdir $(LIBRARY))))
+override PLUGINKEY := $(if $(PLUGINKEY),nh.$(PLUGINKEY),)
+$(info -- Unique plugin key: $(PLUGINKEY))
+$(if $(PLUGINKEY),,$(error failed to generate PLUGINKEY from LIBRARY))
+$(NICKELHOOK)nhplugin.moc: $(NICKELHOOK)nhplugin.json
+$(NICKELHOOK)nhplugin.h: $(NICKELHOOK)nhplugin.json
+$(NICKELHOOK)nhplugin.json:
+	echo '{"Keys":["'"$(PLUGINKEY)"'"]}' > $@
+
 ## generated files
 # override GENERATED += <file>
 override OBJECTS_C    := $(filter %.o,$(SOURCES:%.c=%.o))
@@ -85,7 +99,8 @@ override OBJECTS_CXX  := $(filter %.o,$(SOURCES:%.cc=%.o))
 override OBJECTS_CXX1 := $(filter %.o,$(SOURCES:%.cpp=%.o))
 override MOCS_MOC     := $(filter %.moc,$(MOCS:%.h=%.moc))
 override OBJECTS_MOC  := $(MOCS_MOC:%=%.o)
-override GENERATED    += KoboRoot.tgz $(LIBRARY) $(OBJECTS_C) $(OBJECTS_CXX) $(OBJECTS_CXX1) $(MOCS_MOC) $(OBJECTS_MOC)
+override OBJECTS_MISC := $(NICKELHOOK)nhplugin.json
+override GENERATED    += KoboRoot.tgz $(LIBRARY) $(OBJECTS_C) $(OBJECTS_CXX) $(OBJECTS_CXX1) $(MOCS_MOC) $(OBJECTS_MOC) $(OBJECTS_MISC)
 
 ## gitignore
 # override GITIGNORE += <pattern>
@@ -196,9 +211,9 @@ $(OBJECTS_CXX): %.o: %.cc
 $(OBJECTS_CXX1): %.o: %.cpp
 	$(call nh_cmd_cc,$@,$^)
 $(OBJECTS_MOC): %.moc.o: %.moc
-	$(call nh_cmd_moco,$@,$^)
+	$(call nh_cmd_moco,$@,$<)
 $(MOCS_MOC): %.moc: %.h
-	$(call nh_cmd_moch,$@,$^)
+	$(call nh_cmd_moch,$@,$<)
 
 override nh_clangd_file = {"directory": "$(realpath $(CURDIR))", "file": "$(3)", "command": "$(subst \,\\,$(subst ",\",$(call $(1),$(2),$(3))))"}
 override nh_clangd_objs = $(foreach object,$(3),$(nh_comma) $(call nh_clangd_file,nh_cmd_$(1),$(object),$(patsubst %.o,$(2),$(object))))
