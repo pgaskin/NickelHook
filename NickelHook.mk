@@ -14,6 +14,7 @@ ifneq ($(firstword $(MAKEFILE_LIST)),$(lastword $(MAKEFILE_LIST)))
 ifndef nh_top
 CROSS_COMPILE = arm-nickel-linux-gnueabihf-
 MOC           = moc
+RCC           = rcc
 CC            = $(CROSS_COMPILE)gcc
 CXX           = $(CROSS_COMPILE)g++
 PKG_CONFIG    = $(CROSS_COMPILE)pkg-config
@@ -98,9 +99,11 @@ override OBJECTS_C    := $(filter %.o,$(SOURCES:%.c=%.o))
 override OBJECTS_CXX  := $(filter %.o,$(SOURCES:%.cc=%.o))
 override OBJECTS_CXX1 := $(filter %.o,$(SOURCES:%.cpp=%.o))
 override MOCS_MOC     := $(filter %.moc,$(MOCS:%.h=%.moc))
+override RCCS_RCC     := $(filter %.rcc,$(QRCS:%.qrc=%.rcc))
 override OBJECTS_MOC  := $(MOCS_MOC:%=%.o)
+override OBJECTS_RCC  := $(RCCS_RCC:%=%.o)
 override OBJECTS_MISC := $(NICKELHOOK)nhplugin.json
-override GENERATED    += KoboRoot.tgz $(LIBRARY) $(OBJECTS_C) $(OBJECTS_CXX) $(OBJECTS_CXX1) $(MOCS_MOC) $(OBJECTS_MOC) $(OBJECTS_MISC)
+override GENERATED    += KoboRoot.tgz $(LIBRARY) $(OBJECTS_C) $(OBJECTS_CXX) $(OBJECTS_CXX1) $(MOCS_MOC) $(OBJECTS_MOC) $(RCCS_RCC) $(OBJECTS_RCC) $(OBJECTS_MISC)
 
 ## gitignore
 # override GITIGNORE += <pattern>
@@ -194,13 +197,15 @@ koboroot:
 %.so clangd: override CXXFLAGS += -fPIC
 %.so clangd: override LDFLAGS  += -Wl,-soname,$(notdir $@)
 
-$(LIBRARY): $(OBJECTS_C) $(OBJECTS_CXX) $(OBJECTS_CXX1) $(OBJECTS_MOC)
+$(LIBRARY): $(OBJECTS_C) $(OBJECTS_CXX) $(OBJECTS_CXX1) $(OBJECTS_MOC) $(OBJECTS_RCC)
 
-override nh_cmd_so   = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -shared -o $(1) $(2) $(LDFLAGS)
-override nh_cmd_c    = $(CC) $(CPPFLAGS) $(CFLAGS) -c $(2) -o $(1)
-override nh_cmd_cc   = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(2) -o $(1)
-override nh_cmd_moco = $(CXX) -xc++ $(CPPFLAGS) $(CXXFLAGS) -c $(2) -o $(1)
-override nh_cmd_moch = $(MOC) $(2) -o $(1)
+override nh_cmd_so    = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -shared -o $(1) $(2) $(LDFLAGS)
+override nh_cmd_c     = $(CC) $(CPPFLAGS) $(CFLAGS) -c $(2) -o $(1)
+override nh_cmd_cc    = $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(2) -o $(1)
+override nh_cmd_moco  = $(CXX) -xc++ $(CPPFLAGS) $(CXXFLAGS) -c $(2) -o $(1)
+override nh_cmd_rcco  = $(CXX) -xc++ $(CPPFLAGS) $(CXXFLAGS) -c $(2) -o $(1)
+override nh_cmd_moch  = $(MOC) $(2) -o $(1)
+override nh_cmd_rcccc = $(RCC) $(2) -o $(1)
 
 $(LIBRARY): %.so:
 	$(call nh_cmd_so,$@,$^)
@@ -214,6 +219,10 @@ $(OBJECTS_MOC): %.moc.o: %.moc
 	$(call nh_cmd_moco,$@,$<)
 $(MOCS_MOC): %.moc: %.h
 	$(call nh_cmd_moch,$@,$<)
+$(OBJECTS_RCC): %.rcc.o: %.rcc
+	$(call nh_cmd_rcco,$@,$<)
+$(RCCS_RCC): %.rcc: %.qrc
+	$(call nh_cmd_rcccc,$@,$<)
 
 override nh_clangd_file = {"directory": "$(realpath $(CURDIR))", "file": "$(3)", "command": "$(subst \,\\,$(subst ",\",$(call $(1),$(2),$(3))))"}
 override nh_clangd_objs = $(foreach object,$(3),$(nh_comma) $(call nh_clangd_file,nh_cmd_$(1),$(object),$(patsubst %.o,$(2),$(object))))
@@ -226,6 +235,7 @@ clangd:
 		$(call nh_clangd_objs,cc,%.cc,$(OBJECTS_CXX)) \
 		$(call nh_clangd_objs,cc,%.cpp,$(OBJECTS_CXX1)) \
 		$(call nh_clangd_objs,moco,%,$(OBJECTS_MOC)) \
+		$(call nh_clangd_objs,rcco,%,$(OBJECTS_RCC)) \
 	))" | tail -c+3 | sed 's/ , /,\n    /g' >> compile_commands.json
 	echo -n "\n]" >> compile_commands.json
 .PHONY: clangd
