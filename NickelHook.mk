@@ -229,7 +229,7 @@ override nh_clangd_objs = $(foreach object,$(3),$(nh_comma) $(call nh_clangd_fil
 
 clangd:
 	$(if $(CROSS_COMPILE),$(info note: you probably want to use 'make clangd CROSS_COMPILE= CC=clang-10 CXX=clang++-10 CFLAGS= CXXFLAGS=' instead))
-	echo -n "[\n    " > compile_commands.json
+	echo -en "[\n    " > compile_commands.json
 	echo -n "$(subst ",\",$(strip \
 		$(call nh_clangd_objs,c,%.c,$(OBJECTS_C)) \
 		$(call nh_clangd_objs,cc,%.cc,$(OBJECTS_CXX)) \
@@ -237,7 +237,7 @@ clangd:
 		$(call nh_clangd_objs,moco,%,$(OBJECTS_MOC)) \
 		$(call nh_clangd_objs,rcco,%,$(OBJECTS_RCC)) \
 	))" | tail -c+3 | sed 's/ , /,\n    /g' >> compile_commands.json
-	echo -n "\n]" >> compile_commands.json
+	echo -en "\n]" >> compile_commands.json
 .PHONY: clangd
 endif
 
