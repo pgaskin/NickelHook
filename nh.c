@@ -40,6 +40,17 @@ __attribute__((visibility("hidden"))) __attribute__((constructor)) void nh_init(
 // been made, NULL is returned and the error is logged with nh_log.
 __attribute__((visibility("hidden"))) void *nh_dlhook(void *handle, const char *symname, void *target);
 
+// Get the handle for the library whose PLT a hook targets. libnickel is kept
+// open for the whole initialization path; other libraries are opened by name.
+// Use this for both applying and restoring hooks so rollback edits the same
+// library selected by nh_hook.lib.
+static void *nh_hook_lib(const char *name, void *libnickel) {
+    if (!strcmp(name, "libnickel.so.1.0.0") ||
+        !strcmp(name, "/usr/local/Kobo/libnickel.so.1.0.0"))
+        return libnickel;
+    return dlopen(name, RTLD_LAZY|RTLD_LOCAL);
+}
+
 // nh_failsafe_t is a failsafe mechanism for injected shared libraries. It
 // works by moving it to a temporary file (so it won't get loaded the next time)
 // and dlopening itself (to prevent it from being unloaded if it is dlclose'd by
@@ -164,16 +175,14 @@ void nh_init() {
 
         *v->out = NULL;
 
-        void *lib = libnickel;
-        if (!(!strcmp(v->lib, "libnickel.so.1.0.0") || !strcmp(v->lib, "/usr/local/Kobo/libnickel.so.1.0.0"))) {
-            if (!(lib = dlopen(v->lib, RTLD_LAZY|RTLD_LOCAL))) {
-                if (!v->optional) {
-                    nh_log("(NickelHook) ... fatal: could not load lib: %s", dlerror());
-                    goto nh_init_return_err_rhook;
-                }
-                nh_log("(NickelHook) ... info: could not load lib: %s, is optional so ignoring", dlerror());
-                continue;
+        void *lib = nh_hook_lib(v->lib, libnickel);
+        if (!lib) {
+            if (!v->optional) {
+                nh_log("(NickelHook) ... fatal: could not load lib: %s", dlerror());
+                goto nh_init_return_err_rhook;
             }
+            nh_log("(NickelHook) ... info: could not load lib: %s, is optional so ignoring", dlerror());
+            continue;
         }
 
         void *target = dlsym(self, v->sym_new);
@@ -217,8 +226,11 @@ nh_init_return_err_rhook:
         for (struct nh_hook *v = e; v >= nh->hook; v--) {
             nh_log("(NickelHook) info: restoring hook on ('%s', '%s') from (self, '%s') to %p", v->lib, v->sym, v->sym_new, *v->out); // out will have been previously set to the original func
             if (*v->out) {
-                if (!nh_dlhook(libnickel, v->sym, *v->out)) {
-                    nh_log("(NickelHook) ... warning: failed to restore hook");
+                void *lib = nh_hook_lib(v->lib, libnickel);
+                if (!lib) {
+                    nh_log("(NickelHook) ... warning: could not load '%s' to restore '%s': %s", v->lib, v->sym, dlerror());
+                } else if (!nh_dlhook(lib, v->sym, *v->out)) {
+                    nh_log("(NickelHook) ... warning: failed to restore hook on ('%s', '%s')", v->lib, v->sym);
                 }
             } else {
                 nh_log("(NickelHook) ... warning: failed to restore hook: original should have been set, but it was null");
