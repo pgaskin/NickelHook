@@ -6,17 +6,22 @@ NickelHook started out as part of [NickelMenu](https://github.com/pgaskin/Nickel
 
 Unless you are interested in developing your own mod, you probably are looking for one of the existing ones:
 
-| Mod  | Description | Status |
-| :--- |     ---     |   ---: |
-| [pgaskin/NickelMenu](https://github.com/pgaskin/NickelMenu) | Adds custom menu items to the main and reader menus. | Stable |
-| [pgaskin/NickelSeries](https://github.com/pgaskin/kobo-mods/tree/master/NickelSeries) | Adds support for parsing series (and subtitle) metadata from sideloaded books. | Stable |
-| [pgaskin/kobo-dotfile-hack](https://github.com/pgaskin/kobo-mods/tree/master/kobo-dotfile-hack-ng) | Prevents Nickel from attempting to scan and import books from dotfiles/folders on firmware 4.17.13651+. | Stable |
-| [shermp/NickelDBus](https://github.com/shermp/NickelDBus) | Allows Nickel to be observed and controlled over DBus. | Stable |
-| [shermp/NickelClock](https://github.com/shermp/NickelClock) | Shows the time while reading. | Stable |
-| [tsowell/kobo-btpt](https://github.com/tsowell/kobo-btpt) | Adds support for turning pages using buttons on connected Bluetooth devices. | Stable |
-| [onatbas/nickelnote](https://github.com/onatbas/nickelnote) | Adds a note to the sleep view. | Stable |
-| [Podginator/KoboOmnivoreConverter](https://github.com/Podginator/KoboOmnivoreConverter) | Replaces Pocket with Omnivore. | Stable |
-| [redphx/nickel-screensaver](https://github.com/redphx/nickel-screensaver) | Transparent screensavers. | Stable |
+| Mod  | Description | Status | Notes |
+| :--- |     ---     |   ---: | ---: |
+| [pgaskin/NickelMenu](https://github.com/pgaskin/NickelMenu) | Adds custom menu items to the main and reader menus. | Stable | High quality, mature |
+| [pgaskin/NickelSeries](https://github.com/pgaskin/kobo-mods/tree/master/NickelSeries) | Adds support for parsing series (and subtitle) metadata from sideloaded books. | Stable | High quality, mature |
+| [pgaskin/kobo-dotfile-hack](https://github.com/pgaskin/kobo-mods/tree/master/kobo-dotfile-hack-ng) | Prevents Nickel from attempting to scan and import books from dotfiles/folders on firmware 4.17.13651+. | Stable | High quality, mature |
+| [shermp/NickelDBus](https://github.com/shermp/NickelDBus) | Allows Nickel to be observed and controlled over DBus. | Stable | High quality, mature |
+| [shermp/NickelClock](https://github.com/shermp/NickelClock) | Shows the time while reading. | Stable | High quality, mature |
+| [tsowell/kobo-btpt](https://github.com/tsowell/kobo-btpt) | Adds support for turning pages using buttons on connected Bluetooth devices. | Stable | High quality, mature |
+| [redphx/nickel-screensaver](https://github.com/redphx/nickel-screensaver) | Transparent screensavers. | Stable | High quality, mature |
+| [onatbas/nickelnote](https://github.com/onatbas/nickelnote) | Adds a note to the sleep view. | Stable | |
+| [Podginator/KoboOmnivoreConverter](https://github.com/Podginator/KoboOmnivoreConverter) | Replaces Pocket with Omnivore. | Stable | Older firmware versions only |
+| [nicoverbruggen/NickelTypeFix](https://github.com/nicoverbruggen/NickelTypeFix) | Font rendering fixes. | Stable | May conflict with other mods, complex, fragile |
+| [RedHatter/NickelHardcover](https://github.com/RedHatter/NickelHardcover) | Hardcover.app integration. | Stable | May conflict with other mods, complex, fragile |
+| [nicoverbruggen/NickelCoverFix](https://github.com/nicoverbruggen/NickelCoverFix) | Cover image extraction stuff. | Stable | May conflict with other mods, complex, fragile |
+| [nicoverbruggen/NickelHome](https://github.com/nicoverbruggen/NickelHome) | Home screen tweaks. | Stable | May conflict with other mods, fragile |
+| [nicoverbruggen/NickelDissolve](https://github.com/nicoverbruggen/NickelDissolve) | Kindle-style page-turn animation. | Stable | Fragile, hardware dependent |
 
 ## Installation
 
